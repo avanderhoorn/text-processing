@@ -1,0 +1,30 @@
+.App {
+  text-align: center;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.emojione {
+  width: 1rem;
+}
+
+.component, .raw, .parsed {
+  padding: 0.5rem;
+  margin: 1rem;
+}
+
+.component {
+  border: 2px solid seagreen;
+}
+.raw {
+  border: 2px solid darkred;
+}
+.parsed {
+  border: 2px solid darkblue;
+  font-size: 50%;
+}
+hr  {
+  margin: 3rem 0;
+}

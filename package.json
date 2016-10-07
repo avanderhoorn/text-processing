@@ -1,0 +1,24 @@
+{
+  "name": "text_processor",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "react-scripts": "0.6.1"
+  },
+  "dependencies": {
+    "anser": "^1.1.0",
+    "ansi-html": "0.0.5",
+    "ansi-styles": "^2.2.1",
+    "autolinker": "^1.2.0",
+    "emojione": "^2.2.6",
+    "escape-html": "^1.0.3",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
