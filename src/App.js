@@ -10,8 +10,7 @@ const escapeHtml = require('escape-html');
 
 
 const testCases = [
-  ['<span>This is 😄 :smile: http://google.com/?:smile:=123</span>'],
-  ['This is 😄 :smile: a %s is a %s is a %s is a %s is a %s is a %s is a %s is a %s', 'te  😄 st', 'test', 'test', 'test', 'test', 'test', 'test', 'test'],
+  ['This is 😄 :smile: a %s', 'te  😄 st'],
   'Hello ' + style.red.open + '<3 :heart:' + style.red.close + ' ' + style.green.open + '<strong>big http://google.com</strong> world' + style.green.close + '! 😄 :smile:'
 ];
 
