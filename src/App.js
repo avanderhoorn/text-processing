@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import sprintfjs from './sprintfjs.js';
+import LogStatement from './LogStatement';
 
 const style = require('ansi-styles');
 const ansiHTML = require('ansi-html');
@@ -10,7 +10,8 @@ const escapeHtml = require('escape-html');
 
 
 const testCases = [
-  ['This is 😄 :smile: a %s', 'te  😄 st'],
+  ['hello', 'world'],
+  ['This is 😄 :smile: a %s object ' + style.red.open + '[start %o stop]' + style.red.close + ' other', 'te  😄 st', {test:123}],
   'Hello ' + style.red.open + '<3 :heart:' + style.red.close + ' ' + style.green.open + '<strong>big http://google.com</strong> world' + style.green.close + '! 😄 :smile:'
 ];
 
@@ -42,57 +43,22 @@ const componentUnionText = <div className="component" dangerouslySetInnerHTML={{
 
 
 let currentComponents = [];
-let currentRender = null;
 let timerAll = 0;
-
 const runTestCases = function() {
   const startAll = window.performance.now()
   currentComponents = testCases.map(function(content, index) {
-    const start = window.performance.now()
-    if (typeof content !== 'string') {
-      content = sprintfjs(content[0], content.slice(1, content.length));
-    }
-    else {
-      content = escapeHtml(content);
-    }
-    const parsed = currentRender(content);
-    const timer = Math.round((window.performance.now() - start) * 1000) / 1000;
-    return <div className="holder" key={index}><div className="component" dangerouslySetInnerHTML={{__html: parsed}}></div><div className="timer">{timer}ms</div></div>;
+    return <LogStatement content={content} key={index} />
   });
   timerAll = Math.round((window.performance.now() - startAll) * 1000) / 1000;
 }
-
-const renderOptions = {
-  'link': function(text) { return Autolinker.link(text, linkerOptions); },
-  'ansi': function(text) { return ansiHTML(text); },
-  'emoji': function(text) { return emojione.toImage(text); },
-  'all': function(text) { return ansiHTML(emojione.toImage(Autolinker.link(text, linkerOptions))); }
-}
-const setRenderer = function(target) {
-  currentRender = renderOptions[target];
-}
-
-setRenderer('all');
 runTestCases();
 
 
 class App extends Component {
-  _changeTestCase(target) {
-    setRenderer(target);
-    runTestCases();
-
-    this.setState({ target });
-  }
   render() {
     return (
       <div className="App">
         <h1>Test Cases - {timerAll}ms</h1>
-        <ul className="options">
-          <li><input type="radio" onClick={() => this._changeTestCase('all')} name="type" /> All</li>
-          <li><input type="radio" onClick={() => this._changeTestCase('link')} name="type" /> Autolinker</li>
-          <li><input type="radio" onClick={() => this._changeTestCase('ansi')} name="type" /> Ansi</li>
-          <li><input type="radio" onClick={() => this._changeTestCase('emoji')} name="type" /> Emoji</li>
-        </ul>
         {currentComponents}
         <hr />
         <h2>Union Text</h2>

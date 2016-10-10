@@ -6,7 +6,7 @@ function isDigitAt(string, index) {
 }
 
 function isWhitelistedProperty(property) {
-    var prefixes = ["background", "border", "color", "font", "line", "margin", "padding", "text", "-webkit-background", "-webkit-border", "-webkit-font", "-webkit-margin", "-webkit-padding", "-webkit-text"];
+    var prefixes = ['background', 'border', 'color', 'font', 'line', 'margin', 'padding', 'text', '-webkit-background', '-webkit-border', '-webkit-font', '-webkit-margin', '-webkit-padding', '-webkit-text'];
     for (var i = 0; i < prefixes.length; i++) {
         if (property.startsWith(prefixes[i]))
             return true;
@@ -15,10 +15,13 @@ function isWhitelistedProperty(property) {
 }
 
 const formatters = (function() {
-    function parameterFormatter(force, obj) {
-        // TODO: need to do something here
-        //return this._formatParameter(obj, force, false);
-        return JSON.stringify(obj);
+    function parameterFormatter(force, obj, context, token) {
+        context.objects[token.substitutionIndex] = obj;
+
+        const node = document.createElement('span');
+        node.setAttribute('data-glimpse-object', token.substitutionIndex);
+
+        return node;
     }
 
     function stringFormatter(value) {
@@ -26,26 +29,26 @@ const formatters = (function() {
     }
 
     function floatFormatter(value) {
-        if (typeof value !== "number")
-            return "NaN";
+        if (typeof value !== 'number')
+            return 'NaN';
         return value;
     }
 
     function integerFormatter(value) {
-        if (typeof value !== "number")
-            return "NaN";
+        if (typeof value !== 'number')
+            return 'NaN';
         return Math.floor(value);
     }
 
     function bypassFormatter(value) {
-        return (value instanceof Node) ? value : "";
+        return (value instanceof Node) ? value : '';
     }
 
     function styleFormatter(value, context)
     {
         context.currentStyle = {};
-        var buffer = document.createElement("span");
-        buffer.setAttribute("style", value);
+        var buffer = document.createElement('span');
+        buffer.setAttribute('style', value);
         for (var i = 0; i < buffer.style.length; i++) {
             var property = buffer.style[i];
             if (isWhitelistedProperty(property))
@@ -80,8 +83,8 @@ const append = (function() {
     return function(a, b, currentStyle, className) {
         if (b instanceof Node)
             a.appendChild(b);
-        else if (typeof b !== "undefined" && b !== "") {
-            var toAppend = document.createElement("span");
+        else if (typeof b !== 'undefined' && b !== '') {
+            var toAppend = document.createElement('span');
             toAppend.innerHTML = escapeHtml(b);
             if (className)
                 toAppend.className = className;
@@ -98,26 +101,26 @@ const tokenizeFormatString = function(format, formatters) {
     var substitutionIndex = 0;
 
     function addStringToken(str) {
-        if (tokens.length && tokens[tokens.length - 1].type === "string")
+        if (tokens.length && tokens[tokens.length - 1].type === 'string')
             tokens[tokens.length - 1].value += str;
         else
-            tokens.push({ type: "string", value: str });
+            tokens.push({ type: 'string', value: str });
     }
 
     function addSpecifierToken(specifier, precision, substitutionIndex) {
-        tokens.push({ type: "specifier", specifier: specifier, precision: precision, substitutionIndex: substitutionIndex });
+        tokens.push({ type: 'specifier', specifier: specifier, precision: precision, substitutionIndex: substitutionIndex });
     }
 
     var index = 0;
-    for (var precentIndex = format.indexOf("%", index); precentIndex !== -1; precentIndex = format.indexOf("%", index)) {
+    for (var precentIndex = format.indexOf('%', index); precentIndex !== -1; precentIndex = format.indexOf('%', index)) {
         if (format.length === index)  // unescaped % sign at the end of the format string.
             break;
         addStringToken(format.substring(index, precentIndex));
         index = precentIndex + 1;
 
-        if (format[index] === "%") {
+        if (format[index] === '%') {
             // %% escape sequence.
-            addStringToken("%");
+            addStringToken('%');
             ++index;
             continue;
         }
@@ -128,17 +131,17 @@ const tokenizeFormatString = function(format, formatters) {
             while (isDigitAt(format, index))
                 ++index;
 
-            // If the number is greater than zero and ends with a "$",
+            // If the number is greater than zero and ends with a '$',
             // then this is a substitution index.
-            if (number > 0 && format[index] === "$") {
+            if (number > 0 && format[index] === '$') {
                 substitutionIndex = (number - 1);
                 ++index;
             }
         }
 
         var precision = -1;
-        if (format[index] === ".") {
-            // This is a precision specifier. If no digit follows the ".",
+        if (format[index] === '.') {
+            // This is a precision specifier. If no digit follows the '.',
             // then the precision should be zero.
             ++index;
             precision = parseInt(format.substring(index), 10);
@@ -171,15 +174,15 @@ const process = function(format, substitutions, context) {
         return { formattedResult: append(context.root, format, context.currentStyle), unusedSubstitutions: substitutions };
 
     function prettyFunctionName() {
-        return "String.format(\"" + format + "\", \"" + Array.prototype.join.call(substitutions, "\", \"") + "\")";
+        return 'String.format("' + format + '", "' + Array.prototype.join.call(substitutions, '", "') + '")';
     }
 
     function warn(msg) {
-        context.debug.push({ msg: prettyFunctionName() + ": " + msg, type: 'warn' });
+        context.debug.push({ msg: prettyFunctionName() + ': ' + msg, type: 'warn' });
     }
 
     function error(msg) {
-        context.debug.push({ msg: prettyFunctionName() + ": " + msg, type: 'error' });
+        context.debug.push({ msg: prettyFunctionName() + ': ' + msg, type: 'error' });
     }
 
     var result = context.root;
@@ -189,21 +192,21 @@ const process = function(format, substitutions, context) {
     for (var i = 0; i < tokens.length; ++i) {
         var token = tokens[i];
 
-        if (token.type === "string") {
+        if (token.type === 'string') {
             result = append(result, token.value, context.currentStyle);
             continue;
         }
 
-        if (token.type !== "specifier") {
-            error("Unknown token type \"" + token.type + "\" found.");
+        if (token.type !== 'specifier') {
+            error('Unknown token type "' + token.type + '" found.');
             continue;
         }
 
         if (token.substitutionIndex >= substitutions.length) {
             // If there are not enough substitutions for the current substitutionIndex
             // just output the format specifier literally and move on.
-            error("not enough substitution arguments. Had " + substitutions.length + " but needed " + (token.substitutionIndex + 1) + ", so substitution was skipped.");
-            result = append(result, "%" + (token.precision > -1 ? token.precision : "") + token.specifier, context.currentStyle);
+            error('not enough substitution arguments. Had ' + substitutions.length + ' but needed ' + (token.substitutionIndex + 1) + ', so substitution was skipped.');
+            result = append(result, '%' + (token.precision > -1 ? token.precision : '') + token.specifier, context.currentStyle);
             continue;
         }
 
@@ -211,7 +214,7 @@ const process = function(format, substitutions, context) {
 
         if (!(token.specifier in formatters)) {
             // Encountered an unsupported format character, treat as a string.
-            warn("unsupported format character \u201C" + token.specifier + "\u201D. Treating as a string.");
+            warn('unsupported format character \u201C' + token.specifier + '\u201D. Treating as a string.');
             result = append(result, substitutions[token.substitutionIndex], context.currentStyle);
             continue;
         }
@@ -227,15 +230,21 @@ const process = function(format, substitutions, context) {
         unusedSubstitutions.push(substitutions[i]);
     }
 
-    return { formattedResult: result, unusedSubstitutions: unusedSubstitutions, debug: (context.debug.length > 0 ? context.debug : undefined) };
+    return {
+        formattedResult: result,
+        unusedSubstitutions: unusedSubstitutions,
+        debug: (context.debug.length > 0 ? context.debug : undefined),
+        objects: (Object.keys(context.objects).length > 0 ? context.objects : undefined)
+    };
 }
 
 export default function(format, parameters) {
     var context = {
         currentStyle: null,
+        root: document.createElement('span'),
         debug: [],
-        root: document.createElement("span")
+        objects: {}
     }
 
-    return process(format, parameters, context).formattedResult.innerHTML;
+    return process(format, parameters, context);
 };
