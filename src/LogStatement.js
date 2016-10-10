@@ -15,6 +15,10 @@ emojione.regUnicode = new RegExp("<object[^>]*>.*?</object>|<a[^>]*>.*?</a>|<(?:
 // linker settigns
 const linkerOptions = { newWindow: true, phone: false, mention: false, hashtag: false };
 
+function calulateTimer(start, finish) {
+    return Math.round((finish - start) * 1000) / 1000;
+}
+
 function process(content) {
     const start = window.performance.now();
 
@@ -33,7 +37,15 @@ function process(content) {
 
     // additional pass to linkify, emojify and ansify
     // NOTE: random perf problems occur in here
-    const parsed = ansiHTML(emojione.toImage(Autolinker.link(content, linkerOptions)));
+    const startLinker = window.performance.now();
+    let parsed = Autolinker.link(content, linkerOptions);
+    const finishLinker = window.performance.now();
+    const startEmoji = window.performance.now();
+    parsed = emojione.toImage(parsed);
+    const finishEmoji = window.performance.now();
+    const startAnsi = window.performance.now();
+    parsed = ansiHTML(parsed);
+    const finishAnsi = window.performance.now();
 
     // setup holder which we can work with
     const contentElement = document.createElement('div');
@@ -49,20 +61,29 @@ function process(content) {
         }
     }
 
-    const timer = Math.round((window.performance.now() - start) * 1000) / 1000;
+    const finish = window.performance.now();
 
     return {
         node: contentElement,
-        timer
+        timer: {
+            all: calulateTimer(start, finish),
+            linker: calulateTimer(startLinker, finishLinker),
+            emoji: calulateTimer(startEmoji, finishEmoji),
+            ansi: calulateTimer(startAnsi, finishAnsi),
+        }
+
     };
 }
 
 class LogStatement extends Component {
     componentDidMount() {
         const result = process(this.props.content);
-
         this.refs.target.appendChild(result.node);
-        this.refs.timer.appendChild(document.createTextNode(result.timer + 'ms'));
+
+        const timer = result.timer;
+        const timerNode = document.createElement('span');
+        timerNode.innerHTML = '<strong>' + timer.all + 'ms</strong> (l:' + timer.linker + 'ms, e:' + timer.emoji + 'ms, a:' + timer.ansi + 'ms)';
+        this.refs.timer.appendChild(timerNode);
     }
     render() {
         return (
