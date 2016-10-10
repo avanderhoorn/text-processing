@@ -18,3 +18,8 @@
 [data-glimpse-object] > ul > li > span:first-of-type {
     padding-left: 0 !important;
 }
+
+.logStatement {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}

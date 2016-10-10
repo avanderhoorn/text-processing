@@ -13,7 +13,13 @@ const testCases = [
     ['hello 😄 :smile: ' + style.red.open + '[big]' + style.red.close +' %s', 'world'],
     ['hello 😄 :smile: ' + style.red.open + '[big %s]' + style.red.close +' %s', 'large', 'world'],
     ['hello 😄 :smile: ' + style.red.open + '[big %s bold]' + style.red.close +' %s', 'large', 'world'],
-    'Hello ' + style.red.open + '<3 :heart:' + style.red.close + ' ' + style.gray.open + '<strong>big http://google.com</strong> world' + style.gray.close + '! 😄 :smile:'
+    'Hello ' + style.red.open + '<3 :heart:' + style.red.close + ' ' + style.gray.open + '<strong>big http://google.com</strong> world' + style.gray.close + '! 😄 :smile:',
+    'Long log message with white space\n    Long log message with white space Long log message with white space Long log message with white space Long log message with white space \n Long log message with white space \n\n  Long log message with white space',
+    'Long log message with white space    Long log message with white space Long log message with white space Long log message with white space Long log message with white space Long log message with white space Long log message with white space',
+    'xxxreallyLongxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    ['hello \n  step down\n    %s', 'world'],
+    ['hello \n  step down\n    %s %o', 'world', [{test:123}, {yellow:34}, {black:45}, {red:52}, {orange:788}]],
+    ['hello \n  step down %o\n    %s ', [{test:123}, {yellow:34}, {black:45}, {red:52}, {orange:788}], 'world']
 ];
 
 let currentComponents = [];

@@ -77,6 +77,7 @@ function process(content) {
     // setup holder which we can work with
     const contentElement = document.createElement('div');
     contentElement.innerHTML = parsed;
+    contentElement.className = 'logStatement';
 
     const startObject = window.performance.now();
     // additional inject objects if needed
@@ -84,7 +85,6 @@ function process(content) {
         for (const objectKey in contentObj.objects) {
             if (objectKey) {
                 const node = contentElement.querySelector('span[data-glimpse-object="' + objectKey + '"]');
-                //node.innerHTML = JSON.stringify(contentObj.objects[objectKey]);
                 ReactDOM.render(<JSONTree data={contentObj.objects[objectKey]} shouldExpandNode={() => false} theme={theme} />, node);
             }
         }
@@ -103,7 +103,6 @@ function process(content) {
             ansi: calulateTimer(startAnsi, finishAnsi),
             object: calulateTimer(startObject, finishObject)
         }
-
     };
 }
 
