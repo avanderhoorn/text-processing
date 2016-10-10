@@ -16,10 +16,10 @@ function isWhitelistedProperty(property) {
 
 const formatters = (function() {
     function parameterFormatter(force, obj, context, token) {
-        context.objects[token.substitutionIndex] = obj;
+        context.objects['s' + token.substitutionIndex] = obj;
 
         const node = document.createElement('span');
-        node.setAttribute('data-glimpse-object', token.substitutionIndex);
+        node.setAttribute('data-glimpse-object', 's' + token.substitutionIndex);
 
         return node;
     }
@@ -169,6 +169,21 @@ const tokenizeFormatString = function(format, formatters) {
     return tokens;
 }
 
+const paramaterProcessor = function(element, parameters, context) {
+    // Single parameter, or unused substitutions from above.
+    for (let i = 0; i < parameters.length; ++i) {
+        element.appendChild(document.createTextNode(' '));
+        const node = document.createElement('span');
+        if (parameters[i].type === "string")
+            node.innerHTML = escapeHtml(parameters[i]);
+         else {
+            context.objects['p' + i] = parameters[i];
+            node.setAttribute('data-glimpse-object', 'p' + i);
+         }
+         element.appendChild(node);
+    }
+}
+
 const process = function(format, substitutions, context) {
     if (!format || !substitutions || !substitutions.length)
         return { formattedResult: append(context.root, format, context.currentStyle), unusedSubstitutions: substitutions };
@@ -229,6 +244,7 @@ const process = function(format, substitutions, context) {
             continue;
         unusedSubstitutions.push(substitutions[i]);
     }
+    paramaterProcessor(result, unusedSubstitutions, context);
 
     return {
         formattedResult: result,
