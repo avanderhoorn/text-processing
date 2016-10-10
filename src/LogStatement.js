@@ -86,16 +86,6 @@ function process(content) {
                 const node = contentElement.querySelector('span[data-glimpse-object="' + objectKey + '"]');
                 //node.innerHTML = JSON.stringify(contentObj.objects[objectKey]);
                 ReactDOM.render(<JSONTree data={contentObj.objects[objectKey]} shouldExpandNode={() => false} theme={theme} />, node);
-
-/*
-<JSONTree
-But if you pass the following:
-
-const getItemString = (type, data, itemType, itemString)
-  => ;
-*/
-
-
             }
         }
     }
