@@ -1,0 +1,20 @@
+[data-glimpse-object] > ul {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 !important;
+}
+[data-glimpse-object] > ul > li:first-child {
+    padding-top: 0 !important;
+}
+[data-glimpse-object] > ul > li > div:first-child {
+    padding-right: 0.15em !important;
+}
+[data-glimpse-object] > ul > li > div:first-child > div {
+    transform: none !important;
+}
+[data-glimpse-object] > ul > li > label:first-of-type {
+    display: none !important;
+}
+[data-glimpse-object] > ul > li > span:first-of-type {
+    padding-left: 0 !important;
+}

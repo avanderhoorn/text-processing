@@ -174,10 +174,11 @@ const paramaterProcessor = function(element, parameters, context) {
     for (let i = 0; i < parameters.length; ++i) {
         element.appendChild(document.createTextNode(' '));
         const node = document.createElement('span');
-        if (parameters[i].type === "string")
-            node.innerHTML = escapeHtml(parameters[i]);
+        const value = parameters[i];
+        if (typeof value === 'string' || typeof value === 'number')
+            node.innerHTML = escapeHtml(value);
          else {
-            context.objects['p' + i] = parameters[i];
+            context.objects['p' + i] = value;
             node.setAttribute('data-glimpse-object', 'p' + i);
          }
          element.appendChild(node);

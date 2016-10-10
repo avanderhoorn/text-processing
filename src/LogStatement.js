@@ -1,10 +1,35 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import sprintfjs from './sprintfjs.js';
+
+import JSONTree from 'react-json-tree';
+import './LogStatement.css';
 
 const ansiHTML = require('ansi-html');
 const emojione = require('emojione');
-const Autolinker = require( 'autolinker' );
+const Autolinker = require( 'autolinker');
 const escapeHtml = require('escape-html');
+
+const theme = {
+  scheme: 'default',
+  author: 'chris kempson (http://chriskempson.com)',
+  base00: '#181818',
+  base01: '#282828',
+  base02: '#383838',
+  base03: '#585858',
+  base04: '#b8b8b8',
+  base05: '#d8d8d8',
+  base06: '#e8e8e8',
+  base07: '#f8f8f8',
+  base08: '#ab4642',
+  base09: '#dc9656',
+  base0A: '#f7ca88',
+  base0B: '#a1b56c',
+  base0C: '#86c1b9',
+  base0D: '#7cafc2',
+  base0E: '#ba8baf',
+  base0F: '#a16946'
+};
 
 // emojione settings
 emojione.imageType = 'svg';
@@ -24,6 +49,7 @@ function process(content) {
 
     let contentObj = undefined;
 
+    const startSprintfjs = window.performance.now();
     // intial pass if sprintfjs if needed
     if (typeof content !== 'string') {
         contentObj = sprintfjs(content[0], content.slice(1, content.length));
@@ -34,9 +60,10 @@ function process(content) {
     else {
         content = escapeHtml(content);
     }
+    const finishSprintfjs = window.performance.now();
 
     // additional pass to linkify, emojify and ansify
-    // NOTE: random perf problems occur in here
+    // NOTE: random perf problems occur in here, hence perf tracking
     const startLinker = window.performance.now();
     let parsed = Autolinker.link(content, linkerOptions);
     const finishLinker = window.performance.now();
@@ -51,15 +78,28 @@ function process(content) {
     const contentElement = document.createElement('div');
     contentElement.innerHTML = parsed;
 
+    const startObject = window.performance.now();
     // additional inject objects if needed
     if (contentObj && contentObj.objects) {
         for (const objectKey in contentObj.objects) {
             if (objectKey) {
                 const node = contentElement.querySelector('span[data-glimpse-object="' + objectKey + '"]');
-                node.innerHTML = JSON.stringify(contentObj.objects[objectKey]);
+                //node.innerHTML = JSON.stringify(contentObj.objects[objectKey]);
+                ReactDOM.render(<JSONTree data={contentObj.objects[objectKey]} shouldExpandNode={() => false} theme={theme} />, node);
+
+/*
+<JSONTree
+But if you pass the following:
+
+const getItemString = (type, data, itemType, itemString)
+  => ;
+*/
+
+
             }
         }
     }
+    const finishObject = window.performance.now();
 
     const finish = window.performance.now();
 
@@ -67,9 +107,11 @@ function process(content) {
         node: contentElement,
         timer: {
             all: calulateTimer(start, finish),
+            sprintfjs: calulateTimer(startSprintfjs, finishSprintfjs),
             linker: calulateTimer(startLinker, finishLinker),
             emoji: calulateTimer(startEmoji, finishEmoji),
             ansi: calulateTimer(startAnsi, finishAnsi),
+            object: calulateTimer(startObject, finishObject)
         }
 
     };
@@ -82,14 +124,14 @@ class LogStatement extends Component {
 
         const timer = result.timer;
         const timerNode = document.createElement('span');
-        timerNode.innerHTML = '<strong>' + timer.all + 'ms</strong> (l:' + timer.linker + 'ms, e:' + timer.emoji + 'ms, a:' + timer.ansi + 'ms)';
+        timerNode.innerHTML = '<strong>' + timer.all + 'ms</strong> (p:' + timer.sprintfjs + 'ms, l:' + timer.linker + 'ms, e:' + timer.emoji + 'ms, a:' + timer.ansi + 'ms, o:' + timer.object + 'ms)';
         this.refs.timer.appendChild(timerNode);
     }
     render() {
         return (
-        <div className="holder">
-            <div className="component" ref="target"></div><div className="timer" ref="timer"></div>
-        </div>
+            <div className="holder">
+                <div className="component" ref="target"></div><div className="timer" ref="timer"></div>
+            </div>
         );
     }
 }
