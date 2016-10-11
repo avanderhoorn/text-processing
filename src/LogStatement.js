@@ -75,9 +75,11 @@ function process(content) {
     const finishAnsi = window.performance.now();
 
     // setup holder which we can work with
+    const startElement = window.performance.now();
     const contentElement = document.createElement('div');
     contentElement.innerHTML = parsed;
     contentElement.className = 'logStatement';
+    const finishElement = window.performance.now();
 
     const startObject = window.performance.now();
     // additional inject objects if needed
@@ -101,6 +103,7 @@ function process(content) {
             linker: calulateTimer(startLinker, finishLinker),
             emoji: calulateTimer(startEmoji, finishEmoji),
             ansi: calulateTimer(startAnsi, finishAnsi),
+            element: calulateTimer(startElement, finishElement),
             object: calulateTimer(startObject, finishObject)
         }
     };
@@ -112,8 +115,12 @@ class LogStatement extends Component {
         this.refs.target.appendChild(result.node);
 
         const timer = result.timer;
+        const timerShort = 'p:' + timer.sprintfjs + 'ms, l:' + timer.linker + 'ms, e:' + timer.emoji + 'ms, a:' + timer.ansi + 'ms, e:' + timer.element + 'ms, o:' + timer.object + 'ms';
+        const timerLong = 'sprintfjs parsing:' + timer.sprintfjs + 'ms \nlinker parsing:' + timer.linker + 'ms \nemoji parsing:' + timer.emoji + 'ms \nansi parsing:' + timer.ansi + 'ms \nelement creation:' + timer.element + 'ms \nobject processing:' + timer.object + 'ms';
+
         const timerNode = document.createElement('span');
-        timerNode.innerHTML = '<strong>' + timer.all + 'ms</strong> (p:' + timer.sprintfjs + 'ms, l:' + timer.linker + 'ms, e:' + timer.emoji + 'ms, a:' + timer.ansi + 'ms, o:' + timer.object + 'ms)';
+        timerNode.innerHTML = '<strong>' + timer.all + 'ms</strong> (' + timerShort + ')';
+        timerNode.setAttribute('title', timerLong);
         this.refs.timer.appendChild(timerNode);
     }
     render() {
