@@ -45,11 +45,11 @@ function calulateTimer(start, finish) {
 }
 
 function process(content) {
+    console.timeStamp('START');
     const start = window.performance.now();
 
-    let contentObj = undefined;
-
     const startSprintfjs = window.performance.now();
+    let contentObj = undefined;
     // intial pass if sprintfjs if needed
     if (typeof content !== 'string') {
         contentObj = sprintfjs(content[0], content.slice(1, content.length));
@@ -94,6 +94,7 @@ function process(content) {
     const finishObject = window.performance.now();
 
     const finish = window.performance.now();
+    console.timeStamp('END');
 
     return {
         node: contentElement,
