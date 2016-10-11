@@ -80,19 +80,27 @@ const append = (function() {
             element.style[key] = currentStyle[key];
     }
 
-    return function(a, b, currentStyle, className) {
-        if (b instanceof Node)
-            a.appendChild(b);
-        else if (typeof b !== 'undefined' && b !== '') {
-            var toAppend = document.createElement('span');
-            toAppend.innerHTML = escapeHtml(b);
-            if (className)
-                toAppend.className = className;
-            if (currentStyle)
-                applyCurrentStyle(toAppend, currentStyle);
-            a.appendChild(toAppend);
+    return function(container, content, currentStyle, className) {
+        if (content instanceof Node)
+            container.appendChild(content);
+        else if (typeof content !== 'undefined' && content !== '') {
+            content = escapeHtml(content);
+
+            var toAppend = undefined;
+            if (className || currentStyle) {
+                toAppend = document.createElement('span');
+                toAppend.innerHTML = content;
+                if (className)
+                    toAppend.className = className;
+                if (currentStyle)
+                    applyCurrentStyle(toAppend, currentStyle);
+            }
+            else {
+                toAppend = document.createTextNode(content);
+            }
+            container.appendChild(toAppend);
         }
-        return a;
+        return container;
     };
 })();
 
